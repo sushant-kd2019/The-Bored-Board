@@ -1,7 +1,27 @@
 import random
 import curses
+import pickle
 
 # initial setup of the game.
+
+# user setup
+user = input("Enter your name, player : ")
+
+score = 0
+high_score = 0
+ar = dict()
+try:
+    with open("db.txt", "rb") as file:
+        try:
+            ar = dict(pickle.load(file))
+        except EOFError:
+            pass
+        if user in ar.keys():
+            high_score = int(ar[user])
+        else:
+            ar[user] = 0
+except:
+    pass
 
 # initializing the screen and configuring it.
 s = curses.initscr()
@@ -29,7 +49,8 @@ w.addch(int(food[0]), int(food[1]), curses.ACS_PI)
 
 # initial direction of snake.
 key = curses.KEY_RIGHT
-score = 0
+
+
 while True:
     next_key = w.getch()
 
@@ -46,7 +67,14 @@ while True:
         s.keypad(False)
         curses.echo()
         curses.endwin()
+        print("You lose... :P")
         print("Not so charming anymore, huh snake charmer?")
+        if score > high_score:
+            high_score = score
+            with open("db.txt", "wb") as file:
+                ar[user] = high_score
+                pickle.dump(ar, file)
+        print("Your high score : "+str(high_score))
         print("Your Score : "+str(score))
         break
         quit()
@@ -84,4 +112,4 @@ while True:
     try:
         w.addch(int(snake[0][0]), int(snake[0][1]), curses.ACS_CKBOARD)
     except:
-        print("Not so charming anymore, huh snake charmer?")
+        pass
